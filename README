@@ -1,0 +1,8 @@
+This is an embedded domain project which includes arm cortex microntroller (TM4C123GH6PM) Which is manufactured by the texas instruments and 4X4matrix keyboard 
+Which is used for quick prototyping and useful for doing projects 
+First choose GPIO pins and connect 4 rows an 4 coloums of matrix to GPIO pins of mirocontroller by seeing the code
+Then go to keil microvision version 4 select new project and  select microcontroller then include startup file click on YES and again YES
+Select .c file type the code in this IDE save it and build rebuild 
+After successful execution we will get verfied ok then connect the board to CPU by USB cable reset it
+You type the password and check the color of led  
+You can choose blue color or combination of all colors or combination of any 2 colors by changing the offset number giving to respective register

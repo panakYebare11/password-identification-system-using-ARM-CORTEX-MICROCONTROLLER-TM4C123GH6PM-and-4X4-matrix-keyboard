@@ -1,0 +1,157 @@
+#include "TM4C123GH6PM.h"
+#define KEYPADROW GPIOD
+#define KEYPADCOL GPIOC
+unsigned char arr[4]={0x00,0x05,0x09,0x0f};
+const unsigned char keymap[4][4]={
+{0x00,0x01,0x02,0x03},
+{0x04,0x05,0x06,0x07},
+{0x08,0x09,0x0a,0x0b},
+{0x0c,0x0d,0x0e,0x0f},
+};
+unsigned char y[4];
+void keypad_init(void);
+unsigned char keyboard_getkey(void);
+void getpassword(void);
+int compare(void);
+void LED(int j);
+void delay(int);
+int main(void)
+{
+int k;
+SYSCTL->RCGCGPIO|=0x20;
+GPIOF->DIR=0x0E;
+GPIOF->DEN=0x0E;
+GPIOF->DATA=0x00;	
+keypad_init();
+getpassword();
+k=compare();
+LED(k);
+}
+
+
+void keypad_init(void)
+{
+SYSCTL->RCGCGPIO|=0x0C;
+KEYPADROW->DIR|=0x0F;
+KEYPADROW->DEN|=0x0F;
+KEYPADROW->ODR|=0x0F;
+KEYPADCOL->DIR|=0x0F;
+KEYPADCOL->DEN|=0xF0;
+KEYPADCOL->PUR|=0xF0;
+}
+
+
+unsigned char keyboard_getkey(void)
+{
+int row,col,colx;
+
+
+while(1)
+{
+	
+while(1)
+{ KEYPADROW->DATA=0;
+	col=KEYPADCOL->DATA&0xF0;
+	if(col==0xF0)
+		break;
+}
+
+while(1)
+{ KEYPADROW->DATA=0;
+	col=KEYPADCOL->DATA&0xF0;
+	colx=col;
+	if(col!=0xF0)
+		break;
+}
+ delay(2);
+   KEYPADROW->DATA=0;
+	col=KEYPADCOL->DATA&0xF0;
+   if(col==colx) break;
+	}
+
+
+while(1)
+{
+row=0;
+KEYPADROW->DATA=0x0E;
+KEYPADCOL->PUR|=0xF0;	
+col=KEYPADCOL->DATA&0xF0;
+if(col!=0xF0)break;
+row=1;
+KEYPADROW->DATA=0x0D;
+KEYPADCOL->PUR|=0xF0;	
+col=KEYPADCOL->DATA&0xF0;
+if(col!=0xF0)break;
+row=2;
+KEYPADROW->DATA=0x0B;
+KEYPADCOL->PUR|=0xF0;
+col=KEYPADCOL->DATA&0xF0;
+if(col!=0xF0)break;
+row=3;
+KEYPADROW->DATA=0x07;
+KEYPADCOL->PUR|=0xF0;
+col=KEYPADCOL->DATA&0xF0;
+if(col!=0xF0)break;
+}
+if(col==0xE0) return keymap[row][0];
+if(col==0xD0) return keymap[row][1];
+if(col==0xB0) return keymap[row][2];
+if(col==0x70) return keymap[row][3];
+return 0;
+}
+void getpassword(void)
+{
+int i;
+for(i=0;i<4;i++)
+{
+
+y[i]=keyboard_getkey();
+}
+}
+int compare(void)
+{
+int j,count=0;
+for(j=0;j<4;j++)
+{
+if(y[j]-arr[j]==0)
+{
+count=count+1;
+}
+}
+
+if(count==4)
+return 1;
+else
+return 0;
+}
+void LED(int n)
+{
+if(n==1)
+{
+SYSCTL->RCGCGPIO|=0x20;
+GPIOF->DIR=0x0E;
+GPIOF->DEN=0x0E;
+GPIOF->DATA=0x08;
+}
+else
+{
+SYSCTL->RCGCGPIO|=0x20;
+GPIOF->DIR=0x0E;
+GPIOF->DEN=0x0E;
+GPIOF->DATA=0x02;
+}
+}
+void delay(int t)
+{
+int u,d;
+for(u=0;u<t;u++)
+{
+for(d=0;d<3138;d++)
+{};
+}
+}
+
+void SystemInit(void)
+{
+SCB->CPACR=0x00F00000;
+}
